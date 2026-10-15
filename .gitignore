@@ -1,0 +1,23 @@
+# 构建产物
+build/
+.gradle/
+local.properties
+
+# 运行时产物
+output/
+model/
+log/
+*.log
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# 打包产物
+*.apk
+*.aar
+
+# Native 构建中间产物
+.cxx/
+.externalNativeBuild/

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- 仅 API 27~28 存公共 Download 用; API 29+ 走 MediaStore 免权限 -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
+
+    <application
+        android:label="MOSS TTS Nano"
+        android:theme="@android:style/Theme.Material.Light.NoActionBar"
+        android:allowBackup="false">
+
+        <activity
+            android:name="com.moss.tts.demo.MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- adb 批测入口: am start -n com.moss.tts/.TestTtsActivity (参数见README) -->
+        <activity
+            android:name="com.moss.tts.TestTtsActivity"
+            android:exported="true" />
+    </application>
+</manifest>

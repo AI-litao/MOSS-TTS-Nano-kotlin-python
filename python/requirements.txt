@@ -1,0 +1,4 @@
+# MOSS-TTS-Nano CPU 端依赖 (尽量精简, 无 torch!)
+onnxruntime>=1.17
+numpy
+sentencepiece

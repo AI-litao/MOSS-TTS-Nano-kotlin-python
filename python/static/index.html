@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MOSS TTS Nano</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 720px; margin: 24px auto; padding: 0 16px; background: #141419; color: #eee; }
+  h1 { font-size: 20px; }
+  textarea { width: 100%; min-height: 100px; font-size: 15px; background: #1e1e26; color: #eee; border: 1px solid #444; border-radius: 6px; padding: 8px; box-sizing: border-box; }
+  .row { margin: 12px 0; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  select, input { background: #1e1e26; color: #eee; border: 1px solid #444; border-radius: 6px; padding: 6px; }
+  button { background: #c9a24b; color: #141419; border: 0; border-radius: 6px; padding: 10px 22px; font-size: 15px; cursor: pointer; }
+  button:disabled { opacity: .5; cursor: default; }
+  #status { color: #999; font-size: 13px; }
+  audio { width: 100%; margin-top: 8px; }
+</style>
+</head>
+<body>
+<h1>MOSS TTS Nano — 离线语音合成</h1>
+<textarea id="text">今天天气真好，我们出去玩吧。</textarea>
+<div class="row">
+  <label>音色 <select id="voice"></select></label>
+  <label>语速(停顿) <input id="speed" type="number" step="0.1" min="1" max="3" value="1" style="width:64px"></label>
+  <label>压伸(音高不变) <input id="stretch" type="number" step="0.05" min="1" max="1.5" value="1" style="width:64px"></label>
+  <button id="go">生成</button>
+</div>
+<div id="status">就绪</div>
+<audio id="player" controls></audio>
+<script>
+const $ = (id) => document.getElementById(id);
+fetch('/api/voices').then(r => r.json()).then(d => {
+  if (!d.ok) { $('status').textContent = '模型未就绪: ' + d.error; return; }
+  // 12个推荐音色 (18个builtin中已筛掉6个弱音色, 详见README)
+  const recommended = [4,0,1,2,5,6,7,8,9,12,14,15];
+  const map = Object.fromEntries(d.voices.map(v => [v.id, v.name]));
+  $('voice').innerHTML = recommended.filter(i => map[i])
+    .map(i => `<option value="${i}" ${i===4?'selected':''}>${i} ${map[i]}</option>`).join('');
+});
+$('go').onclick = async () => {
+  $('go').disabled = true;
+  $('status').textContent = '生成中…';
+  try {
+    const r = await fetch('/api/generate', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ text: $('text').value, voice: Number($('voice').value), speed: Number($('speed').value), stretch: Number($('stretch').value) })
+    });
+    const d = await r.json();
+    if (d.ok) { $('player').src = d.wav; $('status').textContent = `完成 (${d.ms}ms) → output/${d.wav.split('/').pop()}`; }
+    else $('status').textContent = '失败: ' + d.error;
+  } catch (e) { $('status').textContent = '异常: ' + e; }
+  $('go').disabled = false;
+};
+</script>
+</body>
+</html>
