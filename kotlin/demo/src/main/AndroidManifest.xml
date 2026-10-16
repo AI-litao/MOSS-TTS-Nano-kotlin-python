@@ -2,6 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- 模型下载期持 WakeLock+WifiLock, 防息屏降速 -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- 模型下载前台服务(熄屏/锁屏下载不被掐网络) + 通知 -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- 仅 API 27~28 存公共 Download 用; API 29+ 走 MediaStore 免权限 -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
 
@@ -23,5 +29,11 @@
         <activity
             android:name="com.moss.tts.TestTtsActivity"
             android:exported="true" />
+
+        <!-- 模型下载前台服务(ModelManager 下载期自动启停) -->
+        <service
+            android:name="com.moss.tts.demo.ModelDownloadService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
     </application>
 </manifest>

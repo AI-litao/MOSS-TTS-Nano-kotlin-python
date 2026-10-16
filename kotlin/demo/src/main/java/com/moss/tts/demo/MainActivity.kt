@@ -1,5 +1,6 @@
 package com.moss.tts.demo
 
+import android.Manifest
 import android.app.Activity
 import android.content.ContentValues
 import android.content.Intent
@@ -10,6 +11,7 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.view.WindowManager
 import android.provider.MediaStore
 import android.widget.ArrayAdapter
 import android.widget.Button
@@ -125,10 +127,17 @@ class MainActivity : Activity() {
         setContentView(ScrollView(this).apply { addView(root) })
 
         // 首启: 检测模型, 无则自动下载
+        // 通知权限(API33+): 前台服务下载进度通知用; 拒了也能下载, 只是不显示通知
+        if (Build.VERSION.SDK_INT >= 33) {
+            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1001)
+        }
+        // 下载期屏幕常亮(防息屏); 用户主动锁屏由前台服务兜底, 下载继续
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         genBtn.isEnabled = false
         ModelManager.ensureModel(this,
             onStatus = { runOnUiThread { statusText.text = it } },
             onDone = { ok -> runOnUiThread {
+                window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                 genBtn.isEnabled = ok
                 // 失败时保留 onStatus 文案(含失败原因), 不再覆盖成笼统提示
                 if (ok) statusText.text = "就绪"
