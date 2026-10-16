@@ -130,7 +130,8 @@ class MainActivity : Activity() {
             onStatus = { runOnUiThread { statusText.text = it } },
             onDone = { ok -> runOnUiThread {
                 genBtn.isEnabled = ok
-                statusText.text = if (ok) "就绪" else "模型未就绪"
+                // 失败时保留 onStatus 文案(含失败原因), 不再覆盖成笼统提示
+                if (ok) statusText.text = "就绪"
             } })
     }
 
